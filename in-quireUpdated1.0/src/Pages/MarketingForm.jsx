@@ -18,9 +18,9 @@ class MarketingForm extends Component {
       errors: {},
       team: [],
     };
-    this.handleDropdownChange = this.handleDropdownChange.bind(this);
+    /*this.handleDropdownChange = this.handleDropdownChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.handleChange = this.handleChange.bind(this); */
   }
 
   async componentDidMount() {
@@ -76,6 +76,19 @@ class MarketingForm extends Component {
     );
     console.log(data);
   };
+  budgetUpdate = async (team) => {
+    const amount = this.state.amount;
+    const budget = this.context.currentUser.budget; // used to set api team.budget
+
+    team.budget = parseInt(budget, 10) - parseInt(amount, 10);
+    this.context.currentUser.budget = team.budget; //updates the context
+
+    const { data } = await http.put(
+      config.apiEndpoint + "/team/" + this.context.currentUser.teamID,
+      team
+    );
+    console.log(data);
+  };
 
   handleSubmit = (e) => {
     e.preventDefault();
@@ -85,6 +98,7 @@ class MarketingForm extends Component {
     if (errors) return;
 
     this.putSubmit(this.state.marketing);
+    this.budgetUpdate(this.state.team);
   };
 
   handleChange = (e) => {

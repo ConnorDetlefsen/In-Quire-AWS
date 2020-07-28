@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Map, GoogleApiWrapper, InfoWindow, Marker } from "google-maps-react";
+import Input from "../Components/inventoryInput";
+import Joi from "joi-browser";
 
 const mapStyles = {
   width: "70%",
@@ -18,6 +20,8 @@ export class locationComponent extends Component {
       { lat: 33.81, lng: -177.839 },
       { lat: 33.756, lng: -177.849 },
     ],
+    bid: 0,
+    errors: {},
   };
   onMarkerClick = (props, marker, e) =>
     this.setState({
@@ -25,6 +29,14 @@ export class locationComponent extends Component {
       activeMarker: marker,
       showingInfoWindow: true,
     });
+
+  schema = {
+    bid: Joi.number().required().label("Bid"),
+  };
+
+  handleChange = (e) => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
 
   onClose = (props) => {
     if (this.state.showingInfoWindow) {
@@ -50,7 +62,7 @@ export class locationComponent extends Component {
           <Marker
             position={{ lat: 33.789, lng: -117.851 }}
             onClick={this.onMarkerClick}
-            name={"Coffee Shop Location 1"}
+            name={""}
           />
           <InfoWindow
             marker={this.state.activeMarker}
