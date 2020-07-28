@@ -1,8 +1,12 @@
 import React, { Component } from "react";
 import http from "../Services/httpService";
 import config from "../config.json";
-const teamID = 1;
+import UserContext from "../Context/UserContext";
+import { ToastContainer, toast } from "react-toastify";
+
 class messagingForm extends Component {
+  static contextType = UserContext;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -12,42 +16,46 @@ class messagingForm extends Component {
     };
   }
   async componentDidMount() {
-    http.get(config.apiEndpoint + "/message/" + teamID).then((res) => {
-      this.setState({ messages: res.data });
-      console.log(res);
-    });
+    http
+      .get(config.apiEndpoint + "/message/" + this.context.currentUser.teamID)
+      .then((res) => {
+        this.setState({ messages: res.data });
+        console.log(res);
+      });
   }
-  handleSubmit() {}
+  handleSubmit = async (e) => {
+    e.preventDefault();
+
+    http
+      .post(config.apiEndpoint + "/message/", {
+        message: this.state.new_message,
+        team_id: this.context.currentUser.teamID,
+      })
+      .then((res) => {
+        console.log(res);
+        toast.success(`Message Sent`);
+      })
+      .catch((err) => {
+        toast.error(`Message could not be sent `);
+      });
+  };
+
+  handleChange = (e) => {
+    this.setState({ new_message: e.target.value });
+  };
 
   render() {
     const { messages } = this.state;
     return (
       <React.Fragment>
-        <table className="financeTable">
-          <thead>
-            <tr>
-              <th>Message</th>
-              <th>Date</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {messages.map((messages) => (
-              <tr key={messages.message_id}>
-                <td>{messages.message}</td>
-                <td>{("" + messages.stamp).substring(0, 10)}</td>
-                <td>{("" + messages.stamp).substring(11, 19)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ToastContainer />
+
         <form onSubmit={this.handleSubmit}>
           <div className="form-group">
-            <label></label>
             <p>Send a message to the team!</p>
             <textarea
+              onChange={this.handleChange}
               className="message-box"
-              id="exampleFormControlTextarea1"
               rows="5"
             ></textarea>
           </div>
